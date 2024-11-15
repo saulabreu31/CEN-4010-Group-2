@@ -1,0 +1,60 @@
+/* Reset some default styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+h1 {
+    color: #4CAF50; /* Green */
+    font-size: 36px;
+    text-align: center;
+    margin-top: 50px;
+}
+
+p {
+    font-size: 18px;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 600px;
+    color: #555;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+img {
+    display: block;
+    margin: 20px auto;
+    max-width: 300px;
+    border-radius: 10px;
+}
+
+footer {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    margin-top: 50px;
+}
+
+footer a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
