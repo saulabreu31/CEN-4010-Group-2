@@ -1,96 +1,53 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, EqualTo
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+import files  # Custom file handling module
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
 
-# Flask-Login setup
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
+# Configure the database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///studyflow.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your_secret_key_here'
 
-# Dummy user database
-users = {}
+# Initialize the database
+db = SQLAlchemy(app)
 
-class User(UserMixin):
-    def __init__(self, id, username, password):
-        self.id = id
-        self.username = username
-        self.password = password
-
-@login_manager.user_loader
-def load_user(user_id):
-    return users.get(user_id)
-
-# Forms
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=20)])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=4, max=20)])
-    submit = SubmitField('Login')
-
-class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(), Length(min=4, max=20)])
-    password = PasswordField('Password', validators=[InputRequired(), Length(min=4, max=20)])
-    confirm_password = PasswordField('Confirm Password', validators=[
-        InputRequired(), EqualTo('password', message='Passwords must match')
-    ])
-    submit = SubmitField('Register')
+# Database model for File uploads
+class UploadedFile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(100), nullable=False)
+    content_type = db.Column(db.String(50), nullable=False)
+    upload_time = db.Column(db.DateTime, nullable=False)
 
 @app.route('/')
-@login_required
 def home():
-    return render_template('index.html', username=current_user.username)
+    return render_template('index.html', title='Study Flow')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        for user in users.values():
-            if user.username == form.username.data and check_password_hash(user.password, form.password.data):
-                login_user(user)
-                return redirect(url_for('home'))
-        flash('Invalid username or password')
-    return render_template('login.html', form=form)
+@app.route('/uploadForm', methods=['GET', 'POST'])
+def uploadFiles():
+    return render_template("uploadFile.html", title="Upload Files Form")
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = generate_password_hash(form.password.data, method='sha256')
-        if username not in [user.username for user in users.values()]:
-            user_id = str(len(users) + 1)
-            users[user_id] = User(user_id, username, password)
-            flash('Registration successful! Please log in.')
-            return redirect(url_for('login'))
-        else:
-            flash('Username already exists.')
-    return render_template('register.html', form=form)
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
+    # Save file details to the database
+    uploaded_file = UploadedFile(
+        filename=file.filename,
+        content_type=file.content_type,
+        upload_time=db.func.now()
+    )
+    db.session.add(uploaded_file)
+    db.session.commit()
 
-@app.route('/files')
-@login_required
-def files():
-    return render_template('files.html')
-
-@app.route('/calendar')
-@login_required
-def calendar():
-    return render_template('calendar.html')
-
-@app.route('/notes')
-@login_required
-def notes():
-    return render_template('notes.html')
+    # Process the file using custom logic
+    return files.handle_file_upload(file)
 
 if __name__ == '__main__':
+    # Create the database and tables if they don't exist
+    with app.app_context():
+        db.create_all()
+
     app.run(debug=True)
