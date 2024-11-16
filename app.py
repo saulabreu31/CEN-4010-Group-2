@@ -45,6 +45,18 @@ def upload_file():
     # Process the file using custom logic
     return files.handle_file_upload(file)
 
+@app.route('/users')
+def users_view():
+    # Query all registered users from the database
+    users = User.query.all()
+    return render_template('users.html', users=users)
+
+@app.route('/pageReplacement')
+def pageReplacement():
+    return "Page Replacement Simulator"
+
+
+
 if __name__ == '__main__':
     # Create the database and tables if they don't exist
     with app.app_context():
