@@ -59,11 +59,17 @@ def pageReplacement():
 def uploadCalendar():
     return "Upload Calendar functionality coming soon!"
 
+@app.route('/uploadNotes', methods=['GET', 'POST'])
+def uploadNotes():
+    return render_template('upload_notes.html', title='Upload Notes')
+
+
 
 
 if __name__ == '__main__':
-    # Create the database and tables if they don't exist
-    with app.app_context():
-        db.create_all()
-
+    # Print all the routes in the app
+    print("Registered routes in the application:")
+    print(app.url_map)
+    
+    # Run the Flask app
     app.run(debug=True)
