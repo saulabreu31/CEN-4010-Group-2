@@ -55,6 +55,10 @@ def users_view():
 def pageReplacement():
     return "Page Replacement Simulator"
 
+@app.route('/uploadCalendar')
+def uploadCalendar():
+    return "Upload Calendar functionality coming soon!"
+
 
 
 if __name__ == '__main__':
