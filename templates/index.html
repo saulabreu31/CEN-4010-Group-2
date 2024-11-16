@@ -66,12 +66,14 @@
         <div class="section" id="calendar-section">
             <h2>Calendar</h2>
             <p>View and manage your schedule.</p>
+            <a href="{{ url_for('uploadCalendar') }}">
         </div>
 
         <!-- Notes Section -->
         <div class="section" id="notes-section">
             <h2>Notes</h2>
             <p>Create and save personal notes for your classes.</p>
+            <a href="{{ url_for('uploadNotes') }}">
         </div>
 
         <!-- File Upload Section -->
@@ -80,15 +82,6 @@
             <p>Upload your files here for easy access.</p>
             <a href="{{ url_for('uploadFiles') }}">
                 <button>Go to Upload Form</button>
-            </a>
-        </div>
-
-        <!-- Page Replacement Simulator Section -->
-        <div class="section" id="page-replacement-section">
-            <h2>Page Replacement Simulator</h2>
-            <p>Simulate FIFO, LRU, and Optimal page replacement algorithms.</p>
-            <a href="{{ url_for('pageReplacement') }}">
-                <button>Start Simulation</button>
             </a>
         </div>
     </div>
