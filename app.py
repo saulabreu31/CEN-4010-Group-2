@@ -63,10 +63,6 @@ def uploadCalendar():
 def uploadNotes():
     return render_template('upload_notes.html', title='Upload Notes')
 
-@app.route('/')
-def home():
-    return render_template('index.html', title='StudyFlow')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     return render_template('login.html', title='Login')
