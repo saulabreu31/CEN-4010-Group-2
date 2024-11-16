@@ -5,11 +5,14 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f9;
     color: #333;
     line-height: 1.6;
+    justify-content: center;/* Center content vertically */
+    align-items: center;
+    text-align: center;  
 }
 
 h1 {
@@ -58,3 +61,15 @@ footer a {
 footer a:hover {
     text-decoration: underline;
 }
+form {
+    display: flex;
+    flex-direction: column; /* Ensures the form elements are stacked vertically */
+    justify-content: center; /* Centers form elements vertically */
+    align-items: center; /* Centers form elements horizontally */
+    margin: 0 auto; /* Horizontally centers the form in its container */
+    max-width: 500px; /* Optional: Set a max width for the form */
+    padding: 20px; /* Optional: Adds padding inside the form */
+    border: 1px solid #ccc; /* Optional: Adds a border around the form */
+    border-radius: 10px; /* Optional: Rounds the corners of the form */
+}
+
