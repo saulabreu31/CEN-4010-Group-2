@@ -1,7 +1,14 @@
 from flask import Flask, render_template, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from models import db, UploadedFile, CalendarEvent
+from datetime import datetime
 import files  # Custom file handling module
+#<<<<<<< Updated upstream
 from NoteTakingSystem import NoteTakingSystem  # Note-taking system module
+#=======
+from calendar_function import *
+
+
+#>>>>>>> Stashed changes
 
 app = Flask(__name__)
 
@@ -10,18 +17,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///studyflow.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 
-# Initialize the database
-db = SQLAlchemy(app)
+# Initialize database with the Flask app
+db.init_app(app)
 
+
+
+#<<<<<<< Updated upstream
 # Initialize the note-taking system
 note_system = NoteTakingSystem()
 
-# Database model for File uploads
-class UploadedFile(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(100), nullable=False)
-    content_type = db.Column(db.String(50), nullable=False)
-    upload_time = db.Column(db.DateTime, nullable=False)
+
+#=======
+#>>>>>>> Stashed changes
 
 @app.route('/')
 def home():
@@ -59,13 +66,14 @@ def users_view():
 def pageReplacement():
     return "Page Replacement Simulator"
 
-@app.route('/uploadCalendar')
-def uploadCalendar():
-    return "Upload Calendar functionality coming soon!"
+@app.route('/calendar')
+def calendar_page():
+    return render_template('calendar.html', title='Calendar')
+
 
 # Upload notes form route
 @app.route('/uploadNotes', methods=['GET', 'POST'])
-def upload_notes():
+def uploadNotes():
     """
     Display the notes upload form (GET) or handle note uploads (POST).
     """
@@ -148,6 +156,59 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     return render_template('register.html', title='Register')
+
+@app.route('/calendar/events', methods=['GET'])
+def get_user_events():
+    try:
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+        events = get_events(user_id)
+        return jsonify([{
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'start_time': event.start_time.isoformat(),
+            'end_time': event.end_time.isoformat()
+        } for event in events])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/calendar/add', methods=['POST'])
+def add_calendar_event():
+    try:
+        data = request.json
+        if not all(k in data for k in ['user_id', 'title', 'start_time', 'end_time']):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        result = add_event(
+            user_id=data['user_id'],
+            title=data['title'],
+            description=data.get('description', ''),
+            start_time=datetime.fromisoformat(data['start_time']),
+            end_time=datetime.fromisoformat(data['end_time'])
+        )
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/calendar/update/<int:event_id>', methods=['PUT'])
+def update_calendar_event(event_id):
+    data = request.json
+    result = update_event(
+        event_id=event_id,
+        title=data.get('title'),
+        description=data.get('description'),
+        start_time=datetime.fromisoformat(data.get('start_time')) if 'start_time' in data else None,
+        end_time=datetime.fromisoformat(data.get('end_time')) if 'end_time' in data else None
+    )
+    return jsonify(result)
+
+@app.route('/calendar/delete/<int:event_id>', methods=['DELETE'])
+def delete_calendar_event(event_id):
+    result = delete_event(event_id)
+    return jsonify(result)
+
 
 
 
