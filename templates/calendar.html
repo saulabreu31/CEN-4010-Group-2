@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Fix the JavaScript file path -->
+    <script src="{{ url_for('static', filename='calendar.js') }}" defer></script>
+</head>
+<body>
+<h1>Calendar Events</h1>
+
+<!-- Add Event Form -->
+<form id="add-event-form">
+    <div class="form-group">
+        <input type="text" id="title" placeholder="Event Title" required>
+    </div>
+    <div class="form-group">
+        <textarea id="description" placeholder="Event Description"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="start_time">Start Time:</label>
+        <input type="datetime-local" id="start_time" required>
+    </div>
+    <div class="form-group">
+        <label for="end_time">End Time:</label>
+        <input type="datetime-local" id="end_time" required>
+    </div>
+    <button type="submit">Add Event</button>
+</form>
+
+<!-- Event List -->
+<div class="events-container">
+    <h2>Your Events</h2>
+    <ul id="event-list"></ul>
+</div>
+</body>
+</html>
