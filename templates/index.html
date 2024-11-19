@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+    <head>
+        <title>Study Flow</title>
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            const colors = ["red", "blue", "green", "orange", "purple", "pink", "teal"];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.title = "Study Flow"; // Ensures title matches the content
+            const titleElement = document.getElementById("dynamic-title");
+            if (titleElement) {
+              titleElement.style.color = randomColor;
+            }
+          });
+        </script>
+      </head>
+      <body>
+        <h1 id="dynamic-title">Study Flow</h1>
+      </body>
+      
+ <html lang="en">
+ <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyFlow</title>
@@ -102,6 +121,14 @@
             <p>Create and save personal notes for your classes.</p>
             <a href="{{ url_for('uploadNotes') }}">
                 <button>Go to Notes</button>
+            </a>
+        </div>
+
+        <div class="section" id="notes-section">
+            <h2>Courses</h2>
+            <p>Add and save personal Courses from any institution.</p>
+            <a href="{{ url_for('uploadCourses') }}">
+                <button>Go to Courses</button>
             </a>
         </div>
 
