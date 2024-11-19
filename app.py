@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash
 from models import db, UploadedFile, CalendarEvent
 from datetime import datetime
 import files  # Custom file handling module
@@ -57,7 +57,9 @@ def upload_file():
     db.session.commit()
 
     # Process the file using custom logic
-    return files.handle_file_upload(file)
+    #return files.handle_file_upload(file)
+    flash(f'File "{file.filename}" uploaded successfully!', 'success')
+    return redirect(url_for('uploaded_files'))
 
 @app.route('/uploadedFiles')
 def uploaded_files():
