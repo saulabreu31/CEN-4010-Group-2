@@ -186,46 +186,32 @@ def add_calendar_event():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/calendar/update/<int:event_id>', methods=['PUT'])
-def update_calendar_event(event_id):
-    data = request.json
-    result = update_event(
-        event_id=event_id,
-        title=data.get('title'),
-        description=data.get('description'),
-        start_time=datetime.fromisoformat(data.get('start_time')) if 'start_time' in data else None,
-        end_time=datetime.fromisoformat(data.get('end_time')) if 'end_time' in data else None
-    )
-    return jsonify(result)
+from forms import LoginForm
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    Handle user login.
-    Render login form for GET requests and authenticate for POST requests.
+    Handle user login using Flask-WTF.
     """
-    if request.method == 'POST':
-        # Extract form data
-        username = request.form.get('username')
-        password = request.form.get('password')
+    form = LoginForm()
 
-        if not username or not password:
-            flash('Username and password are required', 'error')
-            return redirect(url_for('login'))
+    if form.validate_on_submit():  # Automatically handles CSRF and validation
+        username = form.username.data
+        password = form.password.data
 
-        # Authenticate user (replace with your actual authentication logic)
+        # Authenticate user
         user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):  # Assuming User model has `check_password` method
+        if user and user.check_password(password):  # Assuming `check_password` verifies the password
             session['user_id'] = user.id  # Save user ID in session
-            flash('Login successful', 'success')
-            return redirect(url_for('home'))  # Redirect to home or dashboard
+            flash('Login successful!', 'success')
+            return redirect(url_for('home'))
 
-        # Authentication failed
-        flash('Invalid username or password', 'error')
-        return redirect(url_for('login'))
+        # If authentication fails
+        flash('Invalid username or password.', 'error')
 
-    # Render the login page for GET request
-    return render_template('login.html', title='Login')
+    # Render the login page with the form
+    return render_template('login.html', title='Login', form=form)
+
 
 @app.route('/logout')
 def logout():
