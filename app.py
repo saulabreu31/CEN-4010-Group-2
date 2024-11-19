@@ -62,6 +62,7 @@ def users_view():
     users = User.query.all()
     return render_template('users.html', users=users)
 
+
 @app.route('/pageReplacement')
 def pageReplacement():
     return "Page Replacement Simulator"
