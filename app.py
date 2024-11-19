@@ -293,6 +293,8 @@ def admin_register():
 
 
 
+
+
 @app.route('/calendar/delete/<int:event_id>', methods=['DELETE'])
 def delete_calendar_event(event_id):
     result = delete_event(event_id)
