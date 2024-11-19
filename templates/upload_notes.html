@@ -14,9 +14,29 @@
         <input type="text" id="note_title" name="note_title" required><br><br>
 
         <label for="content">Content:</label><br>
-        <textarea id="content" name="content" rows="5" cols="40" required></textarea><br><br>
+        <!-- Increased the size of the content textarea -->
+        <textarea id="content" name="content" rows="10" cols="80" required></textarea><br><br>
 
         <button type="submit">Submit</button>
     </form>
+
+    <!-- Display saved notes below the form -->
+    <h2>Saved Notes</h2>
+    <div>
+        {% if notes %}
+            {% for note in notes %}
+                <div class="note">
+                    <h3>{{ note.title }}</h3>
+                    <p><strong>Course Name:</strong> {{ note.course_name }}</p>
+                    <p><strong>Timestamp:</strong> {{ note.timestamp }}</p>
+                    <p>{{ note.content }}</p>
+                </div>
+                <hr>
+            {% endfor %}
+        {% else %}
+            <p>No notes saved yet.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
+
