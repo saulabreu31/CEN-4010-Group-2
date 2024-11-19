@@ -37,6 +37,12 @@ note_system = NoteTakingSystem()
 def home():
     return render_template('index.html', title='Study Flow')
 
+@app.route('/courses')
+def courses_page():
+    return render_template('courses.html', title='Courses')
+
+
+
 @app.route('/uploadForm', methods=['GET', 'POST'])
 def uploadFiles():
     return render_template("uploadFile.html", title="Upload Files Form")
