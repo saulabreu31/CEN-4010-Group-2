@@ -17,12 +17,16 @@
       <body>
         <h1 id="dynamic-title">Study Flow</h1>
       </body>
+    </script>
+    <style>
+        font-size: 18px;
+    </style>
+</head>
       
  <html lang="en">
  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyFlow</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         body {
@@ -138,6 +142,14 @@
             <p>Upload your files here for easy access.</p>
             <a href="{{ url_for('uploadFiles') }}">
                 <button>Go to Upload Form</button>
+            </a>
+        </div>
+
+        <div class="section" id="courses-section">
+            <h2>Courses</h2>
+            <p>Add and save personal Courses from any institution.</p>
+            <a href="{{ url_for('courses_page') }}">
+                <button>Go to Courses</button>
             </a>
         </div>
     </div>
