@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify
+import os
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from models import db, UploadedFile, CalendarEvent
 from datetime import datetime
 import files  # Custom file handling module
@@ -16,6 +17,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///studyflow.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key_here'
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Initialize database with the Flask app
 db.init_app(app)
@@ -55,6 +58,17 @@ def upload_file():
 
     # Process the file using custom logic
     return files.handle_file_upload(file)
+
+@app.route('/uploadedFiles')
+def uploaded_files():
+    # List files in the upload folder
+    files = os.listdir(app.config['UPLOAD_FOLDER'])
+    return render_template('uploaded_files.html', title='Uploaded Files', files=files)
+
+@app.route('/uploads/<filename>')
+def download_file(filename):
+    # Serve files from the upload folder
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/users')
 def users_view():
