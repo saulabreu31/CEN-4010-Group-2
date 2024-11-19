@@ -1,0 +1,21 @@
+!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Notes</title>
+</head>
+<body>
+    <h1>Upload Notes</h1>
+    <form method="POST" action="/uploadNotes">
+        <label for="course_name">Course Name:</label><br>
+        <input type="text" id="course_name" name="course_name" required><br><br>
+
+        <label for="note_title">Note Title:</label><br>
+        <input type="text" id="note_title" name="note_title" required><br><br>
+
+        <label for="content">Content:</label><br>
+        <textarea id="content" name="content" rows="5" cols="40" required></textarea><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
