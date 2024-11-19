@@ -149,13 +149,7 @@ def delete_note():
     response = note_system.delete_note(data['note_path'])
     return jsonify(response)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    return render_template('login.html', title='Login')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    return render_template('register.html', title='Register')
 
 @app.route('/calendar/events', methods=['GET'])
 def get_user_events():
@@ -203,6 +197,98 @@ def update_calendar_event(event_id):
         end_time=datetime.fromisoformat(data.get('end_time')) if 'end_time' in data else None
     )
     return jsonify(result)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """
+    Handle user login.
+    Render login form for GET requests and authenticate for POST requests.
+    """
+    if request.method == 'POST':
+        # Extract form data
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if not username or not password:
+            flash('Username and password are required', 'error')
+            return redirect(url_for('login'))
+
+        # Authenticate user (replace with your actual authentication logic)
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):  # Assuming User model has `check_password` method
+            session['user_id'] = user.id  # Save user ID in session
+            flash('Login successful', 'success')
+            return redirect(url_for('home'))  # Redirect to home or dashboard
+
+        # Authentication failed
+        flash('Invalid username or password', 'error')
+        return redirect(url_for('login'))
+
+    # Render the login page for GET request
+    return render_template('login.html', title='Login')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash('You have been logged out', 'success')
+    return redirect(url_for('login'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """
+    Handle user registration.
+    Render registration form for GET requests and save user details for POST requests.
+    """
+    if request.method == 'POST':
+        # Extract form data
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        dob = request.form.get('dob')
+        state = request.form.get('state')
+        country = request.form.get('country')
+        email = request.form.get('email')
+        age = request.form.get('age')
+        gender = request.form.get('gender')
+
+        # Validation
+        if not all([first_name, last_name, dob, state, email, age, gender]):
+            flash('All fields are required', 'error')
+            return redirect(url_for('register'))
+
+        # Check if email is already registered
+        if User.query.filter_by(email=email).first():
+            flash('Email is already registered', 'error')
+            return redirect(url_for('register'))
+
+        # Save the new user to the database
+        new_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            dob=datetime.strptime(dob, '%Y-%m-%d'),
+            state=state,
+            email=email,
+            age=int(age),
+            gender=gender
+        )
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Account created successfully. Please log in.', 'success')
+        return redirect(url_for('login'))
+
+    # Render the registration form for GET request
+    return render_template('register.html', title='Register')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register_user():
+    pass
+
+@app.route('/admin/register', methods=['GET', 'POST'])
+def admin_register():
+    pass
+
+
 
 @app.route('/calendar/delete/<int:event_id>', methods=['DELETE'])
 def delete_calendar_event(event_id):
