@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< Updated upstream
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -37,3 +38,97 @@
 </body>
 </html>
 
+=======
+    <title>Courses - StudyFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .title {
+            margin: 0;
+            font-size: 24px;
+        }
+        .button-container {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .button-container button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            font-size: 14px;
+            background-color: #fff;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button-container button:hover {
+            background-color: #45a049;
+            color: white;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #f1f1f1;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="title">StudyFlow - Courses</h1>
+        <div class="button-container">
+            <button onclick="location.href='{{ url_for('home') }}'">Home</button>
+        </div>
+    </header>
+
+    <div class="content">
+        <h2>Courses</h2>
+        <p>Add and save personal courses from any institution for better organization.</p>
+        <button onclick="alert('Add your course functionality here!')">Add New Course</button>
+        <div>
+            <!-- Example list of courses -->
+            <h3>My Courses</h3>
+            <ul>
+                <li>Introduction to Computer Science</li>
+                <li>Data Structures and Algorithms</li>
+                <li>Web Development Basics</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 StudyFlow Platform</p>
+    </footer>
+</body>
+</html>
+
+
+
+>>>>>>> Stashed changes

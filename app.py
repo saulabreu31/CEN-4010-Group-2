@@ -192,6 +192,13 @@ def view_notes(course_name):
     response = note_system.view_notes(course_name)
     return jsonify(response)
 
+@app.route('/courses')
+def courses_page():
+    return render_template('courses.html', title='Courses')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 # Notes API: Read a specific note
 @app.route('/notes/read', methods=['POST'])
 def read_note():
