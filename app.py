@@ -1,12 +1,16 @@
 import os
-from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash, render_template, request, redirect, url_for
 from models import db, UploadedFile, CalendarEvent
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import files  # Custom file handling module
 #<<<<<<< Updated upstream
 from NoteTakingSystem import NoteTakingSystem  # Note-taking system module
 #=======
 from calendar_function import *
+#======= Database
+from app import db
+
 
 
 #>>>>>>> Stashed changes
@@ -21,7 +25,35 @@ UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Initialize database with the Flask app
-db.init_app(app)
+db = SQLAlchemy(app)
+
+courses = []
+
+# Define the Studyflow database model
+class Studyflow(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    class_name = db.Column(db.String(100), nullable=False)
+    time = db.Column(db.String(10), nullable=False)
+    location = db.Column(db.String(200), nullable=False)
+
+    def __repr__(self):
+        return f"<Studyflow {self.class_name}>"
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    dob = db.Column(db.Date, nullable=False)
+    state = db.Column(db.String(50), nullable=False)
+    country = db.Column(db.String(50), nullable=True)  # Optional
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
+
+    def __repr__(self):
+        return f'<User {self.first_name} {self.last_name}>'
+    
+
 
 
 
@@ -39,9 +71,25 @@ def home():
 
 @app.route('/courses')
 def courses_page():
-    return render_template('courses.html', title='Courses')
+    return render_template('courses.html')
 
 
+@app.route('/courses', methods=['GET', 'POST'])
+def managing_courses():
+    if request.method == 'POST':
+        # Get form data
+        class_name = request.form['class_name']
+        time = request.form['time']
+        location = request.form['location']
+        
+        # Create a new course entry
+        new_course = Studyflow(class_name=class_name, time=time, location=location)
+        db.session.add(new_course)
+        db.session.commit()
+
+    # Query all courses
+    courses = Studyflow.query.all()
+    return render_template('courses.html', title='Courses', courses=courses)
 
 @app.route('/uploadForm', methods=['GET', 'POST'])
 def uploadFiles():
@@ -314,5 +362,8 @@ if __name__ == '__main__':
     print("Registered routes in the application:")
     print(app.url_map)
     
-    # Run the Flask app
+
+    # Create the database tables
+    with app.app_context():
+        db.create_all()  # Ensures tables are created
     app.run(debug=True)
