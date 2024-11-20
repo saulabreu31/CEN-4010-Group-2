@@ -19,7 +19,7 @@
         }
         .title {
             margin: 0;
-            font-size: 24px;
+            font-size: 80px;
         }
         .button-container {
             position: absolute;
@@ -88,9 +88,7 @@
 
             // List of logos for dynamic logo changes
             const logos = [
-                "{{ url_for('static', filename='images/logo1.png') }}",
-                "{{ url_for('static', filename='images/logo2.png') }}",
-                "{{ url_for('static', filename='images/logo3.png') }}"
+                "{{ url_for('static', filename='images/logo1.png') }}"
             ];
             const randomLogo = logos[Math.floor(Math.random() * logos.length)];
 
