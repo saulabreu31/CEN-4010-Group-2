@@ -47,11 +47,15 @@ class User(db.Model):
     state = db.Column(db.String(50), nullable=False)
     country = db.Column(db.String(50), nullable=True)  # Optional
     email = db.Column(db.String(120), unique=True, nullable=False)
+    username = db.Column(db.String(50), unique=True, nullable=False)  # Add username
+    password = db.Column(db.String(128), nullable=False)  # Add password
     age = db.Column(db.Integer, nullable=False)
     gender = db.Column(db.String(10), nullable=False)
 
     def __repr__(self):
         return f'<User {self.first_name} {self.last_name}>'
+
+
     
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -274,18 +278,15 @@ from forms import LoginForm
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """
-    Handle user login using Flask-WTF.
-    """
     form = LoginForm()
 
-    if form.validate_on_submit():  # Automatically handles CSRF and validation
+    if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
 
         # Authenticate user
         user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):  # Assuming `check_password` verifies the password
+        if user and user.check_password(password):  # Assuming check_password verifies the password
             session['user_id'] = user.id  # Save user ID in session
             flash('Login successful!', 'success')
             return redirect(url_for('home'))
@@ -293,8 +294,8 @@ def login():
         # If authentication fails
         flash('Invalid username or password.', 'error')
 
-    # Render the login page with the form
     return render_template('login.html', title='Login', form=form)
+
 
 
 @app.route('/logout')
@@ -306,49 +307,30 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """
-    Handle user registration.
-    Render registration form for GET requests and save user details for POST requests.
-    """
     if request.method == 'POST':
-        # Extract form data
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
-        dob = request.form.get('dob')
-        state = request.form.get('state')
-        country = request.form.get('country')
-        email = request.form.get('email')
-        age = request.form.get('age')
-        gender = request.form.get('gender')
+        username = request.form.get('username')
+        password = request.form.get('password')  # Hash this before saving
+        # (other fields)
 
-        # Validation
-        if not all([first_name, last_name, dob, state, email, age, gender]):
-            flash('All fields are required', 'error')
+        # Check if username or email is already registered
+        if User.query.filter_by(username=username).first():
+            flash('Username is already taken', 'error')
             return redirect(url_for('register'))
 
-        # Check if email is already registered
-        if User.query.filter_by(email=email).first():
-            flash('Email is already registered', 'error')
-            return redirect(url_for('register'))
-
-        # Save the new user to the database
+        # Create new user
         new_user = User(
-            first_name=first_name,
-            last_name=last_name,
-            dob=datetime.strptime(dob, '%Y-%m-%d'),
-            state=state,
-            email=email,
-            age=int(age),
-            gender=gender
+            username=username,
+            password=password,  # Hash this before saving
+            # (other fields)
         )
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Account created successfully. Please log in.', 'success')
+        flash('Account created successfully!', 'success')
         return redirect(url_for('login'))
 
-    # Render the registration form for GET request
     return render_template('register.html', title='Register')
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
