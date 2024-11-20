@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Upload Notes</h1>
-    <form method="POST" action="/uploadNotes">
+    <form method="POST" action="{{ url_for('uploadNotes') }}">
         <label for="course_name">Course Name:</label><br>
         <input type="text" id="course_name" name="course_name" required><br><br>
 
@@ -14,7 +14,6 @@
         <input type="text" id="note_title" name="note_title" required><br><br>
 
         <label for="content">Content:</label><br>
-        <!-- Increased the size of the content textarea -->
         <textarea id="content" name="content" rows="10" cols="80" required></textarea><br><br>
 
         <button type="submit">Submit</button>
@@ -39,4 +38,3 @@
     </div>
 </body>
 </html>
-

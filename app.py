@@ -53,6 +53,17 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.first_name} {self.last_name}>'
     
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    course_name = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Note {self.title}>"
+
+    
 
 
 
@@ -145,25 +156,27 @@ def calendar_page():
 # Upload notes form route
 @app.route('/uploadNotes', methods=['GET', 'POST'])
 def uploadNotes():
-    """
-    Display the notes upload form (GET) or handle note uploads (POST).
-    """
     if request.method == 'POST':
         course_name = request.form.get('course_name')
         note_title = request.form.get('note_title')
         content = request.form.get('content')
-        if not course_name or not note_title or not content:
-            return jsonify({"error": "All fields are required"}), 400
-        
-        response = note_system.create_note(
-            course_name=course_name,
-            note_title=note_title,
-            content=content
-        )
-        return jsonify(response)
 
-    # Render the form for GET requests
-    return render_template('upload_notes.html', title='Upload Notes')
+        if not all([course_name, note_title, content]):
+            flash("All fields are required", "error")
+            return redirect(url_for('uploadNotes'))
+
+        # Save the note to the database
+        new_note = Note(course_name=course_name, title=note_title, content=content)
+        db.session.add(new_note)
+        db.session.commit()
+        flash("Note uploaded successfully!", "success")
+
+        return redirect(url_for('uploadNotes'))
+
+    # Query all saved notes
+    notes = Note.query.order_by(Note.timestamp.desc()).all()
+    return render_template('upload_notes.html', title='Upload Notes', notes=notes)
+
 
 # Notes API: Create a note
 @app.route('/notes/create', methods=['POST'])
