@@ -1,19 +1,15 @@
 import os
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash, render_template, request, redirect, url_for
-from models import db, UploadedFile, CalendarEvent
+from models import db, UploadedFile, CalendarEvent, Studyflow, User, Note
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import files  # Custom file handling module
-#<<<<<<< Updated upstream
 from NoteTakingSystem import NoteTakingSystem  # Note-taking system module
-#=======
 from calendar_function import *
-#======= Database
-from app import db
 
 
 
-#>>>>>>> Stashed changes
 
 app = Flask(__name__)
 
@@ -25,60 +21,18 @@ UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Initialize database with the Flask app
-db = SQLAlchemy(app)
+db.init_app(app)
+
+migrate = Migrate(app, db)
 
 courses = []
 
-# Define the Studyflow database model
-class Studyflow(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    class_name = db.Column(db.String(100), nullable=False)
-    time = db.Column(db.String(10), nullable=False)
-    location = db.Column(db.String(200), nullable=False)
-
-    def __repr__(self):
-        return f"<Studyflow {self.class_name}>"
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    dob = db.Column(db.Date, nullable=False)
-    state = db.Column(db.String(50), nullable=False)
-    country = db.Column(db.String(50), nullable=True)  # Optional
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    username = db.Column(db.String(50), unique=True, nullable=False)  # Add username
-    password = db.Column(db.String(128), nullable=False)  # Add password
-    age = db.Column(db.Integer, nullable=False)
-    gender = db.Column(db.String(10), nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.first_name} {self.last_name}>'
-
-
-    
-class Note(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    course_name = db.Column(db.String(100), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f"<Note {self.title}>"
-
-    
 
 
 
-
-#<<<<<<< Updated upstream
 # Initialize the note-taking system
 note_system = NoteTakingSystem()
 
-
-#=======
-#>>>>>>> Stashed changes
 
 @app.route('/')
 def home():
@@ -243,36 +197,81 @@ def delete_note():
 def get_user_events():
     try:
         user_id = request.args.get('user_id')
+        print(f"Received request for user_id: {user_id}")  # Debug print
+
+
         if not user_id:
+            print("No user_id provided")  # Debug print
             return jsonify({'error': 'User ID is required'}), 400
+
+
         events = get_events(user_id)
-        return jsonify([{
-            'id': event.id,
-            'title': event.title,
-            'description': event.description,
-            'start_time': event.start_time.isoformat(),
-            'end_time': event.end_time.isoformat()
-        } for event in events])
+        print(f"Retrieved events: {events}")  # Debug print
+
+
+        # Check if we got an error
+        if isinstance(events, dict) and 'error' in events:
+            return jsonify(events), 500
+
+
+        # If events is a list, return it
+        return jsonify(events)
+
+
     except Exception as e:
+        print(f"Error in get_user_events: {str(e)}")  # Debug print
         return jsonify({'error': str(e)}), 500
 
 @app.route('/calendar/add', methods=['POST'])
 def add_calendar_event():
     try:
         data = request.json
+        print(f"Received event data: {data}")  # Debug print
+
+
         if not all(k in data for k in ['user_id', 'title', 'start_time', 'end_time']):
             return jsonify({'error': 'Missing required fields'}), 400
+
 
         result = add_event(
             user_id=data['user_id'],
             title=data['title'],
             description=data.get('description', ''),
-            start_time=datetime.fromisoformat(data['start_time']),
-            end_time=datetime.fromisoformat(data['end_time'])
+            start_time=datetime.fromisoformat(data['start_time'].replace('Z', '+00:00')),
+            end_time=datetime.fromisoformat(data['end_time'].replace('Z', '+00:00'))
         )
+
+
+        print(f"Add event result: {result}")  # Debug print
+
+
+        # Check if we got an error
+        if isinstance(result, dict) and 'error' in result:
+            return jsonify(result), 500
+
+
         return jsonify(result)
+
+
     except Exception as e:
+        print(f"Error in add_calendar_event: {str(e)}")  # Debug print
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/debug/events')
+def debug_events():
+    try:
+        events = CalendarEvent.query.all()
+        return jsonify([{
+            'id': e.id,
+            'user_id': e.user_id,
+            'title': e.title,
+            'description': e.description,
+            'start_time': e.start_time.isoformat() if e.start_time else None,
+            'end_time': e.end_time.isoformat() if e.end_time else None
+        } for e in events])
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 from forms import LoginForm
 

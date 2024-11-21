@@ -5,35 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Fix the JavaScript file path -->
-    <script src="{{ url_for('static', filename='calendar.js') }}" defer></script>
+    <style>
+       .event-card {
+           border: 1px solid #ddd;
+           padding: 15px;
+           margin: 10px 0;
+           border-radius: 5px;
+           background-color: #f9f9f9;
+       }
+       .event-title {
+           font-weight: bold;
+           font-size: 1.1em;
+           color: #333;
+       }
+       .event-time {
+           color: #666;
+           font-size: 0.9em;
+           margin: 5px 0;
+       }
+       .event-description {
+           color: #444;
+           margin-top: 5px;
+       }
+       .form-group {
+           margin-bottom: 15px;
+       }
+       #add-event-form {
+           max-width: 500px;
+           margin: 20px auto;
+           padding: 20px;
+           border: 1px solid #ddd;
+           border-radius: 5px;
+       }
+       .events-container {
+           max-width: 800px;
+           margin: 20px auto;
+       }
+       input, textarea {
+           width: 100%;
+           padding: 8px;
+           margin-top: 5px;
+           border: 1px solid #ddd;
+           border-radius: 4px;
+       }
+       button {
+           background-color: #4CAF50;
+           color: white;
+           padding: 10px 15px;
+           border: none;
+           border-radius: 4px;
+           cursor: pointer;
+       }
+       button:hover {
+           background-color: #45a049;
+       }
+       .delete-event-btn {
+           background-color: #f44336;
+           color: white;
+           border: none;
+           padding: 5px 10px;
+           border-radius: 3px;
+           cursor: pointer;
+           margin-top: 10px;
+       }
+       .delete-event-btn:hover {
+           background-color: #d32f2f;
+       }
+   </style>
 </head>
 <body>
 <h1>Calendar Events</h1>
 
-<!-- Add Event Form -->
-<form id="add-event-form">
-    <div class="form-group">
-        <input type="text" id="title" placeholder="Event Title" required>
-    </div>
-    <div class="form-group">
-        <textarea id="description" placeholder="Event Description"></textarea>
-    </div>
-    <div class="form-group">
-        <label for="start_time">Start Time:</label>
-        <input type="datetime-local" id="start_time" required>
-    </div>
-    <div class="form-group">
-        <label for="end_time">End Time:</label>
-        <input type="datetime-local" id="end_time" required>
-    </div>
-    <button type="submit">Add Event</button>
-</form>
 
-<!-- Event List -->
+<div id="add-event-form" class="form-container">
+    <form id="event-form">
+        <div class="form-group">
+            <input type="text" id="event-title" placeholder="Event Title" required>
+        </div>
+        <div class="form-group">
+            <textarea id="event-description" placeholder="Event Description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="event-start">Start Time:</label>
+            <input type="datetime-local" id="event-start" required>
+        </div>
+        <div class="form-group">
+            <label for="event-end">End Time:</label>
+            <input type="datetime-local" id="event-end" required>
+        </div>
+        <button type="submit">Add Event</button>
+    </form>
+</div>
+
+
 <div class="events-container">
     <h2>Your Events</h2>
-    <ul id="event-list"></ul>
+    <div id="events-list">
+        <!-- Events will be dynamically loaded here -->
+    </div>
 </div>
+
+
+<script src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
+<a href="{{ url_for('home') }}">Back to Home</a>
 </body>
 </html>
