@@ -136,6 +136,7 @@ def uploadNotes():
     return render_template('upload_notes.html', title='Upload Notes', notes=notes)
 
 
+
 # Notes API: Create a note
 @app.route('/notes/create', methods=['POST'])
 def create_note():
@@ -178,18 +179,21 @@ def read_note():
     return jsonify(response)
 
 # Notes API: Delete a specific note
-@app.route('/notes/delete', methods=['POST'])
-def delete_note():
-    """
-    Endpoint to delete a specific note.
-    Request JSON should include 'note_path'.
-    """
-    data = request.json
-    if not data or 'note_path' not in data:
-        return jsonify({"error": "Missing 'note_path' field"}), 400
+@app.route('/deleteNote/<int:note_id>', methods=['POST'])
+def deleteNote(note_id):
+    try:
+        # Find the note by ID
+        note = Note.query.get_or_404(note_id)
 
-    response = note_system.delete_note(data['note_path'])
-    return jsonify(response)
+        # Delete the note
+        db.session.delete(note)
+        db.session.commit()
+
+        flash('Note deleted successfully', 'success')
+    except Exception as e:
+        flash(f'Error deleting note: {str(e)}', 'error')
+
+    return redirect(url_for('uploadNotes'))
 
 
 

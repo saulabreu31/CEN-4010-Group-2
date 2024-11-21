@@ -5,20 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .home-btn {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .home-btn:hover {
+            background-color: #0056b3;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ title }}</h1>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <label for="file">Select file to upload:</label>
-        <input type="file" name="file" id="file" required>
-        <button type="submit">Upload</button>
-    </form>
+<a href="{{ url_for('home') }}" class="home-btn">Back to Home</a>
 
-    <!-- Button to navigate to the Uploaded Files section -->
-    <a href="{{ url_for('uploaded_files') }}">
-        <button type="button">View Uploaded Files</button>
-    </a>
-    </ul>
-    <a href="{{ url_for('home') }}">Back to Home</a>
+<h1>{{ title }}</h1>
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    <label for="file">Select file to upload:</label>
+    <input type="file" name="file" id="file" required>
+    <button type="submit">Upload</button>
+</form>
+
+<!-- Button to navigate to the Uploaded Files section -->
+<a href="{{ url_for('uploaded_files') }}">
+    <button type="button">View Uploaded Files</button>
+</a>
 </body>
 </html>

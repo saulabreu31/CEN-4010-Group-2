@@ -6,76 +6,90 @@
     <title>Calendar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-       .event-card {
-           border: 1px solid #ddd;
-           padding: 15px;
-           margin: 10px 0;
-           border-radius: 5px;
-           background-color: #f9f9f9;
-       }
-       .event-title {
-           font-weight: bold;
-           font-size: 1.1em;
-           color: #333;
-       }
-       .event-time {
-           color: #666;
-           font-size: 0.9em;
-           margin: 5px 0;
-       }
-       .event-description {
-           color: #444;
-           margin-top: 5px;
-       }
-       .form-group {
-           margin-bottom: 15px;
-       }
-       #add-event-form {
-           max-width: 500px;
-           margin: 20px auto;
-           padding: 20px;
-           border: 1px solid #ddd;
-           border-radius: 5px;
-       }
-       .events-container {
-           max-width: 800px;
-           margin: 20px auto;
-       }
-       input, textarea {
-           width: 100%;
-           padding: 8px;
-           margin-top: 5px;
-           border: 1px solid #ddd;
-           border-radius: 4px;
-       }
-       button {
-           background-color: #4CAF50;
-           color: white;
-           padding: 10px 15px;
-           border: none;
-           border-radius: 4px;
-           cursor: pointer;
-       }
-       button:hover {
-           background-color: #45a049;
-       }
-       .delete-event-btn {
-           background-color: #f44336;
-           color: white;
-           border: none;
-           padding: 5px 10px;
-           border-radius: 3px;
-           cursor: pointer;
-           margin-top: 10px;
-       }
-       .delete-event-btn:hover {
-           background-color: #d32f2f;
-       }
-   </style>
+        .home-btn {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .home-btn:hover {
+            background-color: #0056b3;
+        }
+        .event-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .event-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .event-time {
+            color: #666;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+        .event-description {
+            color: #444;
+            margin-top: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        #add-event-form {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .events-container {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .delete-event-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .delete-event-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
 </head>
 <body>
-<h1>Calendar Events</h1>
+<a href="{{ url_for('home') }}" class="home-btn">Back to Home</a>
 
+<h1>Calendar Events</h1>
 
 <div id="add-event-form" class="form-container">
     <form id="event-form">
@@ -97,7 +111,6 @@
     </form>
 </div>
 
-
 <div class="events-container">
     <h2>Your Events</h2>
     <div id="events-list">
@@ -105,8 +118,6 @@
     </div>
 </div>
 
-
 <script src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
-<a href="{{ url_for('home') }}">Back to Home</a>
 </body>
 </html>
