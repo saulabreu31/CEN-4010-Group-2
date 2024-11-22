@@ -352,6 +352,10 @@ def delete_calendar_event(event_id):
     result = delete_event(event_id)
     return jsonify(result)
 
+@app.route('/database')
+def database_page():
+    return render_template('database.html')
+
 
 
 
