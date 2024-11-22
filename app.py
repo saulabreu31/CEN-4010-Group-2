@@ -7,6 +7,11 @@ from datetime import datetime
 import files  # Custom file handling module
 from NoteTakingSystem import NoteTakingSystem  # Note-taking system module
 from calendar_function import *
+from werkzeug.security import generate_password_hash
+from forms import LoginForm
+
+
+
 
 
 
@@ -282,22 +287,39 @@ from forms import LoginForm
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-
-    if form.validate_on_submit():
+    if form.validate_on_submit():  # This checks if the form was submitted and is valid
+        # Retrieve login form data
         username = form.username.data
-        password = form.password.data
+        password = form.password.data  # Plain text password from form
 
-        # Authenticate user
+        # Fetch user from the database
         user = User.query.filter_by(username=username).first()
-        if user and user.check_password(password):  # Assuming check_password verifies the password
-            session['user_id'] = user.id  # Save user ID in session
-            flash('Login successful!', 'success')
-            return redirect(url_for('home'))
 
-        # If authentication fails
-        flash('Invalid username or password.', 'error')
+        if user:
+            # Check if the password matches
+            if check_password_hash(user.password, password):
+                # Password is correct
+                flash("Login successful!", "success")
+                # You can set up a session or redirect to a protected route
+                return redirect(url_for('dashboard'))  # Replace 'dashboard' with your target route
+            else:
+                # Password does not match
+                flash("Invalid password. Please try again.", "error")
+        else:
+            # User not found
+            flash("Username does not exist. Please register first.", "error")
 
-    return render_template('login.html', title='Login', form=form)
+        return redirect(url_for('login'))
+
+    # Render the login form
+    return render_template('login.html', title="Login", form=form)
+
+@app.route('/users', methods=['GET'])
+def show_users():
+    users = User.query.all()
+    user_data = [{"username": user.username, "email": user.email} for user in users]
+    return render_template('users.html', users=user_data)
+
 
 
 
@@ -308,36 +330,105 @@ def logout():
     return redirect(url_for('login'))
 
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        # Retrieve form data
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        dob = request.form.get('dob')
+        state = request.form.get('state')
+        email = request.form.get('email')
         username = request.form.get('username')
-        password = request.form.get('password')  # Hash this before saving
-        # (other fields)
+        password = request.form.get('password')  # Plain text password from form
+        age = request.form.get('age')
+        gender = request.form.get('gender')
 
-        # Check if username or email is already registered
-        if User.query.filter_by(username=username).first():
-            flash('Username is already taken', 'error')
+        # Validate required fields
+        if not all([first_name, last_name, dob, state, email, username, password, age, gender]):
+            flash("All fields are required!")
             return redirect(url_for('register'))
 
-        # Create new user
+        # Check if username or email already exists
+        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
+        if existing_user:
+            flash("Username or email already exists!")
+            return redirect(url_for('register'))
+
+        # **Hash the password here**
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
+
+        # Create a new user with the hashed password
         new_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            dob=dob,
+            state=state,
+            email=email,
             username=username,
-            password=password,  # Hash this before saving
-            # (other fields)
+            password=hashed_password,  # Save the hashed password
+            age=int(age),
+            gender=gender
         )
-        db.session.add(new_user)
-        db.session.commit()
 
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('login'))
+        # Add the user to the database
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Account created successfully! Please log in.")
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An error occurred: {str(e)}")
+            return redirect(url_for('register'))
 
-    return render_template('register.html', title='Register')
+    # Render the registration form
+    return render_template('register.html', title="Create Account")
+
+
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
-    pass
+    if request.method == 'POST':
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        dob = request.form.get('dob')
+        state = request.form.get('state')
+        country = request.form.get('country')
+        email = request.form.get('email')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        age = request.form.get('age')
+        gender = request.form.get('gender')
+
+        # Validate required fields
+        if not all([first_name, last_name, dob, state, country, email, username, password, age, gender]):
+            flash("All fields are required!")
+            return redirect(url_for('register'))
+
+        # Create user object and save to database
+        new_user = User(
+            first_name=first_name,
+            last_name=last_name,
+            dob=dob,
+            state=state,
+            country=country,
+            email=email,
+            username=username,
+            password=password,
+            age=age,
+            gender=gender
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Registration successful!")
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
 
 @app.route('/admin/register', methods=['GET', 'POST'])
 def admin_register():

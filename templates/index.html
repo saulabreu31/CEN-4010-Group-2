@@ -11,23 +11,36 @@
             margin: 0;
             padding: 0;
         }
+
         header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Space between logo, title, and buttons */
             color: white;
-            padding: 10px 20px;
-            text-align: center;
-            position: relative;
+            padding: 20px 20px;
+            transition: background-color 0.3s ease;
         }
+
+        #logo {
+            height: 100px; /* Larger logo */
+        }
+
+        .title-container {
+            flex-grow: 1; /* Ensures the title takes up the center space */
+            text-align: center;
+        }
+
         .title {
             margin: 0;
             font-size: 80px;
         }
+
         .button-container {
-            position: absolute;
-            top: 10px;
-            right: 20px;
+            display: flex;
+            gap: 10px; /* Adds spacing between buttons */
         }
+
         .button-container button {
-            margin-left: 10px;
             padding: 10px 15px;
             font-size: 14px;
             background-color: #fff;
@@ -36,16 +49,20 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .button-container button:hover {
             background-color: black;
             color: white;
         }
+
         .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             padding: 20px;
+            transition: background-color 0.3s ease;
         }
+
         .section {
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -55,12 +72,14 @@
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
         footer {
             text-align: center;
             padding: 10px;
             background-color: #f1f1f1;
             margin-top: 20px;
         }
+
         button {
             padding: 10px 15px;
             font-size: 14px;
@@ -70,41 +89,44 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: grey;
         }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // List of colors for the header background
-            const colors = ["red", "blue", "green", "orange", "purple", "pink", "teal", "brown", "gold"];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            // List of colors for dynamic background changes
+            const headerColors = ["#FF5733", "#33B5FF", "#33FF57", "#FF33A8", "#9B33FF", "#FF8C33"];
+            const contentColors = ["#EAEDED", "#FDF2E9", "#EBF5FB", "#E8F8F5", "#F9EBEA", "#FEF9E7"];
 
-            // Apply random color to the header background
+            // Apply random color to the header
             const header = document.querySelector("header");
+            const randomHeaderColor = headerColors[Math.floor(Math.random() * headerColors.length)];
             if (header) {
-                header.style.backgroundColor = randomColor;
+                header.style.backgroundColor = randomHeaderColor;
             }
 
-            // List of logos for dynamic logo changes
-            const logos = [
-                "{{ url_for('static', filename='images/logo1.png') }}"
-            ];
-            const randomLogo = logos[Math.floor(Math.random() * logos.length)];
-
-            // Apply random logo to the header (if logo exists)
-            const logoElement = document.getElementById("dynamic-logo");
-            if (logoElement) {
-                logoElement.src = randomLogo;
+            // Apply random color to the main container background
+            const container = document.querySelector(".container");
+            const randomContentColor = contentColors[Math.floor(Math.random() * contentColors.length)];
+            if (container) {
+                container.style.backgroundColor = randomContentColor;
             }
         });
     </script>
 </head>
 <body>
     <header>
-        <!-- Dynamic Logo -->
-        <img id="dynamic-logo" src="{{ url_for('static', filename='images/logo1.png') }}" alt="StudyFlow Logo" style="height: 50px; margin-right: 10px;">
-        <h1 class="title">StudyFlow</h1>
+        <!-- Logo on the Left -->
+        <img id="logo" src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="StudyFlow Logo">
+
+        <!-- Title in the Center -->
+        <div class="title-container">
+            <h1 class="title">StudyFlow</h1>
+        </div>
+
+        <!-- Buttons on the Right -->
         <div class="button-container">
             <button onclick="location.href='{{ url_for('login') }}'">Login</button>
             <button onclick="location.href='{{ url_for('register') }}'">Create Account</button>
@@ -140,6 +162,7 @@
             </a>
         </div>
 
+        <!-- Courses Section -->
         <div class="section" id="courses-section">
             <h2>Courses</h2>
             <p>Add and save personal Courses from any institution.</p>
@@ -155,7 +178,6 @@
     </footer>
 </body>
 </html>
-
 
 
 
