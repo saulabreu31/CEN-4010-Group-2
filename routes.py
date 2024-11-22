@@ -111,12 +111,23 @@ def uploadNotes():
             flash("All fields are required", "error")
             return redirect(url_for('main.uploadNotes'))
 
-        # Save note to the database
-        new_note = Note(course_name=course_name, title=note_title, content=content)
+        # Save the note to the database
+        new_note = Note(
+            course_name=course_name,
+            title=note_title,
+            content=content,
+            timestamp=datetime.utcnow()  # Add a timestamp
+        )
         db.session.add(new_note)
         db.session.commit()
         flash("Note uploaded successfully!", "success")
-    return render_template('upload_notes.html', title='Upload Notes')
+
+        return redirect(url_for('main.uploadNotes'))
+
+    # Order notes by descending timestamp
+    notes = Note.query.order_by(Note.timestamp.desc()).all()  # Adjust this query
+    return render_template('upload_notes.html', title='Upload Notes', notes=notes)
+
 
 # Upload Files Page
 @main_bp.route('/uploadFiles', methods=['GET', 'POST'])
@@ -162,7 +173,9 @@ def uploaded_files():
 # Download Uploaded File
 @main_bp.route('/uploads/<filename>')
 def download_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    return send_from_directory(upload_folder, filename)
+
 
 # Delete Notes API
 @main_bp.route('/deleteNote/<int:note_id>', methods=['POST'])
