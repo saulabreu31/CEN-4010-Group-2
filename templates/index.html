@@ -128,8 +128,8 @@
 
         <!-- Buttons on the Right -->
         <div class="button-container">
-            <button onclick="location.href='{{ url_for('login') }}'">Login</button>
-            <button onclick="location.href='{{ url_for('register') }}'">Create Account</button>
+            <button onclick="location.href='{{ url_for('main.login') }}'">Login</button>
+            <button onclick="location.href='{{ url_for('main.register') }}'">Create Account</button>
         </div>
     </header>
 
@@ -139,7 +139,7 @@
         <div class="section" id="calendar-section">
             <h2>Calendar</h2>
             <p>View and manage your schedule.</p>
-            <a href="{{ url_for('calendar_page') }}">
+            <a href="{{ url_for('main.calendar_page') }}">
                 <button>Go to Calendar</button>
             </a>
         </div>
@@ -148,7 +148,7 @@
         <div class="section" id="notes-section">
             <h2>Notes</h2>
             <p>Create and save personal notes for your classes.</p>
-            <a href="{{ url_for('uploadNotes') }}">
+            <a href="{{ url_for('main.uploadNotes') }}">
                 <button>Go to Notes</button>
             </a>
         </div>
@@ -157,7 +157,7 @@
         <div class="section" id="file-upload-section">
             <h2>File Upload</h2>
             <p>Upload your files here for easy access.</p>
-            <a href="{{ url_for('uploadFiles') }}">
+            <a href="{{ url_for('main.uploadFiles') }}">
                 <button>Go to Upload Form</button>
             </a>
         </div>
@@ -166,7 +166,7 @@
         <div class="section" id="courses-section">
             <h2>Courses</h2>
             <p>Add and save personal Courses from any institution.</p>
-            <a href="{{ url_for('courses_page') }}">
+            <a href="{{ url_for('main.courses_page') }}">
                 <button>Go to Courses</button>
             </a>
         </div>

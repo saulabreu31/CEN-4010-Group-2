@@ -9,8 +9,7 @@ from NoteTakingSystem import NoteTakingSystem  # Note-taking system module
 from calendar_function import *
 from werkzeug.security import generate_password_hash
 from forms import LoginForm
-
-
+from routes import main_bp
 
 
 
@@ -33,7 +32,7 @@ migrate = Migrate(app, db)
 courses = []
 
 
-
+    
 
 # Initialize the note-taking system
 note_system = NoteTakingSystem()
@@ -459,4 +458,7 @@ if __name__ == '__main__':
     # Create the database tables
     with app.app_context():
         db.create_all()  # Ensures tables are created
+        print("Tables created successfully!")
     app.run(debug=True)
+    
+
