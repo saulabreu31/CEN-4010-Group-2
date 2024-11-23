@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash, send_from_directory
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash, send_from_directory, current_app
 from models import User, db, Note, Studyflow, UploadedFile  # Import models and database
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from forms import LoginForm
+
 
 main_bp = Blueprint('main', __name__)
 UPLOAD_FOLDER = 'uploads'
@@ -99,6 +100,36 @@ def register():
 def calendar_page():
     return render_template('calendar.html', title='Calendar')
 
+@main_bp.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        flash('No file part', 'error')
+        return redirect(url_for('main.uploadFiles'))
+
+    file = request.files['file']
+
+    if file.filename == '':
+        flash('No selected file', 'error')
+        return redirect(url_for('main.uploadFiles'))
+
+    # Save the file to the UPLOAD_FOLDER
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], file.filename)
+    file.save(filepath)
+
+    # Save file details to the database, including content type
+    uploaded_file = UploadedFile(
+        filename=file.filename,
+        content_type=file.content_type,  # This fetches the content type (e.g., 'application/pdf')
+        upload_time=datetime.utcnow()
+    )
+    db.session.add(uploaded_file)
+    db.session.commit()
+
+    flash(f'File "{file.filename}" uploaded successfully!', 'success')
+    return redirect(url_for('main.uploaded_files'))
+
+
+
 # Upload Notes Page
 @main_bp.route('/uploadNotes', methods=['GET', 'POST'])
 def uploadNotes():
@@ -193,35 +224,39 @@ def logout():
     flash("Logged out successfully!", "success")
     return redirect(url_for('main.login'))
 
+@main_bp.route('/calendar/events', methods=['GET'])
+def get_events():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User ID is required'}), 400
+    events = CalendarEvent.query.filter_by(user_id=user_id).all()
+    return jsonify([event.to_dict() for event in events])
+
 @main_bp.route('/calendar/add', methods=['POST'])
-def calendar_function():
-    try:
-        # Parse JSON data from the request
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'Invalid JSON data'}), 400
+def add_event():
+    data = request.json
+    if not data:
+        return jsonify({'error': 'Invalid data'}), 400
+    new_event = CalendarEvent(
+        user_id=data['user_id'],
+        title=data['title'],
+        description=data.get('description', ''),
+        start_time=datetime.fromisoformat(data['start_time']),
+        end_time=datetime.fromisoformat(data['end_time'])
+    )
+    db.session.add(new_event)
+    db.session.commit()
+    return jsonify({'success': True, 'event': new_event.to_dict()})
 
-        # Validate required fields
-        if not all(key in data for key in ['user_id', 'title', 'start_time', 'end_time']):
-            return jsonify({'error': 'Missing required fields'}), 400
+@main_bp.route('/calendar/delete/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    event = CalendarEvent.query.get(event_id)
+    if not event:
+        return jsonify({'error': 'Event not found'}), 404
+    db.session.delete(event)
+    db.session.commit()
+    return jsonify({'success': True})
 
-        # Convert start_time and end_time to Python datetime objects
-        start_time = datetime.fromisoformat(data['start_time'])
-        end_time = datetime.fromisoformat(data['end_time'])
-
-        # Add the event to the database (this function must be implemented)
-        result = add_event(
-            user_id=data['user_id'],
-            title=data['title'],
-            description=data.get('description', ''),
-            start_time=start_time,
-            end_time=end_time
-        )
-
-        return jsonify(result), 201
-
-    except Exception as e:
-        return jsonify({'error': f'Error adding event: {str(e)}'}), 500
 
 
 
