@@ -194,7 +194,7 @@ def logout():
     return redirect(url_for('main.login'))
 
 @main_bp.route('/calendar/add', methods=['POST'])
-def add_calendar_event():
+def calendar_function():
     try:
         # Parse JSON data from the request
         data = request.get_json()
