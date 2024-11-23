@@ -9,6 +9,7 @@ from NoteTakingSystem import NoteTakingSystem  # Note-taking system module
 from calendar_function import *
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 def create_app():
     app = Flask(__name__)
 
@@ -17,6 +18,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'your_secret_key_here'
     app.config['UPLOAD_FOLDER'] = 'uploads'
+    
 
     # Initialize database and migration
     db.init_app(app)
