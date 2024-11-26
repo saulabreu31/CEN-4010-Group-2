@@ -1,10 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash, send_from_directory, current_app
-from models import User, db, Note, Studyflow, UploadedFile  # Import models and database
+from models import User, db, Note, Studyflow, UploadedFile, CalendarEvent  # Import models and database
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from forms import LoginForm
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 main_bp = Blueprint('main', __name__)
 UPLOAD_FOLDER = 'uploads'
@@ -229,33 +232,91 @@ def get_events():
     user_id = request.args.get('user_id')
     if not user_id:
         return jsonify({'error': 'User ID is required'}), 400
-    events = CalendarEvent.query.filter_by(user_id=user_id).all()
-    return jsonify([event.to_dict() for event in events])
+
+    try:
+        user_id = int(user_id)
+        events = CalendarEvent.query.filter_by(user_id=user_id).all()
+
+        events_list = [{
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'start_time': event.start_time.isoformat(),
+            'end_time': event.end_time.isoformat()
+        } for event in events]
+
+        return jsonify(events_list)
+
+    except Exception as e:
+        logger.error(f"Error fetching events: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @main_bp.route('/calendar/add', methods=['POST'])
 def add_event():
-    data = request.json
-    if not data:
-        return jsonify({'error': 'Invalid data'}), 400
-    new_event = CalendarEvent(
-        user_id=data['user_id'],
-        title=data['title'],
-        description=data.get('description', ''),
-        start_time=datetime.fromisoformat(data['start_time']),
-        end_time=datetime.fromisoformat(data['end_time'])
-    )
-    db.session.add(new_event)
-    db.session.commit()
-    return jsonify({'success': True, 'event': new_event.to_dict()})
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # Validate required fields
+        required_fields = ['user_id', 'title', 'start_time', 'end_time']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing {field}'}), 400
+
+        # Convert string times to datetime objects
+        start_time = datetime.fromisoformat(data['start_time'])
+        end_time = datetime.fromisoformat(data['end_time'])
+
+        new_event = CalendarEvent(
+            user_id=data['user_id'],
+            title=data['title'],
+            description=data.get('description', ''),
+            start_time=start_time,
+            end_time=end_time
+        )
+
+        db.session.add(new_event)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'event': {
+                'id': new_event.id,
+                'title': new_event.title,
+                'description': new_event.description,
+                'start_time': new_event.start_time.isoformat(),
+                'end_time': new_event.end_time.isoformat()
+            }
+        })
+
+    except ValueError as ve:
+        logger.error(f"Value error: {str(ve)}")
+        return jsonify({'error': 'Invalid datetime format'}), 400
+
+    except Exception as e:
+        logger.error(f"Error adding event: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'Internal server error'}), 500
 
 @main_bp.route('/calendar/delete/<int:event_id>', methods=['DELETE'])
 def delete_event(event_id):
-    event = CalendarEvent.query.get(event_id)
-    if not event:
-        return jsonify({'error': 'Event not found'}), 404
-    db.session.delete(event)
-    db.session.commit()
-    return jsonify({'success': True})
+    try:
+        event = CalendarEvent.query.get(event_id)
+
+        if not event:
+            return jsonify({'error': 'Event not found'}), 404
+
+        db.session.delete(event)
+        db.session.commit()
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        logger.error(f"Error deleting event: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 
